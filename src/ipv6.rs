@@ -3,7 +3,7 @@ use std::io::ErrorKind;
 use std::net::{Ipv6Addr, SocketAddr, SocketAddrV6};
 use std::time::Duration;
 
-use dhcproto::v6::{DhcpOption, DhcpOptions, IAPrefix, OptionCode, Status, VendorClass, IAPD};
+use dhcproto::v6::{DhcpOption, DhcpOptions, IAPrefix, OptionCode, Status, VendorClass, IAPD, StatusCode};
 use dhcproto::{Decodable, Decoder, Encodable, Encoder};
 use socket2::{Socket, Domain, Type};
 
@@ -140,11 +140,11 @@ impl Dhcp6Client {
         }));
 
         let mut pd_options = DhcpOptions::new();
-        let prefix_options = DhcpOptions::new();
-        // prefix_options.insert(DhcpOption::StatusCode(StatusCode {
-        //     status: dhcproto::v6::Status::Success,
-        //     msg: "".to_string(),
-        // }));
+        let mut prefix_options = DhcpOptions::new();
+        prefix_options.insert(DhcpOption::StatusCode(StatusCode {
+            status: dhcproto::v6::Status::Success,
+            msg: "".to_string(),
+        }));
         pd_options.insert(DhcpOption::IAPrefix(IAPrefix {
             preferred_lifetime: pd.preferred_lifetime,
             valid_lifetime: pd.valid_lifetime,
