@@ -131,12 +131,12 @@ impl Dhcp6Client {
         oro.opts.push(OptionCode::DomainSearchList);
         msg.opts_mut().insert(DhcpOption::ElapsedTime(elapsed.as_millis().try_into().unwrap_or(0)));
 
-        let mut data1 = Vec::new();
-        data1.extend_from_slice(&u16::to_be_bytes(6));
-        data1.extend_from_slice(&self.local_if_mac);
+        // let mut data1 = Vec::new();
+        // data1.extend_from_slice(&u16::to_be_bytes(6));
+        // data1.extend_from_slice(&self.local_if_mac);
         msg.opts_mut().insert(DhcpOption::VendorClass(VendorClass {
             num: Self::VENDOR_CODE_NTT,
-            data: vec![data1], // MAC address
+            data: vec![self.local_if_mac.to_vec()], // MAC address
         }));
 
         let mut pd_options = DhcpOptions::new();
