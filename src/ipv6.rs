@@ -129,6 +129,7 @@ impl Dhcp6Client {
         oro.opts.push(OptionCode::SntpServers);
         oro.opts.push(OptionCode::DomainNameServers);
         oro.opts.push(OptionCode::DomainSearchList);
+        msg.opts_mut().insert(DhcpOption::ORO(oro));
         msg.opts_mut().insert(DhcpOption::ElapsedTime(elapsed.as_millis().try_into().unwrap_or(0)));
 
         // let mut data1 = Vec::new();
