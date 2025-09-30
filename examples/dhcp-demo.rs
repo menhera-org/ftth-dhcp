@@ -35,6 +35,7 @@ fn main() -> std::io::Result<()> {
         return Err(std::io::Error::other("IPv6 LL address not found"));
     };
 
+    println!("Testing DHCPv4...");
     let e = {
         let v4_client = ipv4::Dhcp4Client::new(mac_addr.inner, ifname)?;
         v4_client.discover()?;
@@ -51,6 +52,7 @@ fn main() -> std::io::Result<()> {
         eprintln!("DHCPv4 error: {}", e);
     }
 
+    println!("Testing DHCPv6...");
     let e = {
         let init = Instant::now();
         let ia_id: u32 = rand::random();
