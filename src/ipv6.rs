@@ -81,7 +81,7 @@ impl Dhcp6Client {
     }
 
     fn encode_send(&self, msg: dhcproto::v6::Message) -> std::io::Result<()> {
-        let mut buf = Vec::new();
+        let mut buf = Vec::with_capacity(1500);
         let mut e = Encoder::new(&mut buf);
         msg.encode(&mut e).map_err(|_| std::io::Error::new(ErrorKind::InvalidData, "DHCPv6 encoding failed"))?;
         self.socket.send_to(&buf, ("ff02::1:2", Self::SERVER_PORT))?;
