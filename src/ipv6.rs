@@ -3,7 +3,7 @@ use std::io::ErrorKind;
 use std::net::{Ipv6Addr, SocketAddr, SocketAddrV6};
 use std::time::Duration;
 
-use dhcproto::v6::{DhcpOption, DhcpOptions, IAPrefix, OptionCode, Status, VendorClass, IAPD, StatusCode};
+use dhcproto::v6::{DhcpOption, DhcpOptions, IAPrefix, OptionCode, Status, StatusCode, UnknownOption, IAPD};
 use dhcproto::{Decodable, Decoder, Encodable, Encoder};
 use socket2::{Socket, Domain, Type};
 
@@ -138,13 +138,18 @@ impl Dhcp6Client {
         msg.opts_mut().insert(DhcpOption::ORO(oro));
         msg.opts_mut().insert(DhcpOption::ElapsedTime(elapsed.as_millis().try_into().unwrap_or(0)));
 
-        // let mut data1 = Vec::new();
-        // data1.extend_from_slice(&u16::to_be_bytes(6));
-        // data1.extend_from_slice(&self.local_if_mac);
-        msg.opts_mut().insert(DhcpOption::VendorClass(VendorClass {
-            num: Self::VENDOR_CODE_NTT,
-            data: vec![self.local_if_mac.to_vec()], // MAC address
-        }));
+        let mut data1 = Vec::new();
+        data1.extend_from_slice(&u32::to_be_bytes(Self::VENDOR_CODE_NTT));
+        data1.extend_from_slice(&u16::to_be_bytes(6));
+        data1.extend_from_slice(&self.local_if_mac);
+        msg.opts_mut().insert(DhcpOption::Unknown(UnknownOption::new(
+            OptionCode::VendorClass,
+            data1,
+        )));
+        // msg.opts_mut().insert(DhcpOption::VendorClass(VendorClass {
+        //     num: Self::VENDOR_CODE_NTT,
+        //     data: vec![self.local_if_mac.to_vec()], // MAC address
+        // }));
 
         let mut pd_options = DhcpOptions::new();
         let mut prefix_options = DhcpOptions::new();
