@@ -249,8 +249,83 @@ impl Dhcp4Client {
                         static_routes.push(route);
                     }
                 },
+                DhcpOption::VendorExtensions(data) => {
+                    if data.len() < 5 {
+                        continue;
+                    }
+
+                    let entnum: [u8; 4] = data[0..4].try_into().unwrap();
+                    let entnum = u32::from_be_bytes(entnum);
+                    if entnum != Self::VENDOR_CODE_NTT {
+                        log::warn!("Nonrecognized vendor code");
+                        continue;
+                    }
+                    let optlen = data[4] as usize;
+                    if (optlen + 5) > data.len() {
+                        log::warn!("Invalid NTT option length");
+                    }
+                    let mut pos = 5usize;
+                    while (pos + 1) < data.len() {
+                        let subopt_code = data[pos];
+                        let subopt_len = data[pos + 1] as usize;
+                        let startoffset = pos + 2;
+                        if startoffset >= data.len() {
+                            break;
+                        }
+                        let endoffset = startoffset + subopt_len;
+                        if endoffset > data.len() {
+                            break;
+                        }
+                        let subopt_data = &data[startoffset..endoffset];
+                        match subopt_code {
+                            201 => {
+                                // MAC address check
+                            },
+                            202 => {
+                                let main = CStr::from_bytes_until_nul(subopt_data).unwrap_or_default();
+                                let main = main.to_str().unwrap_or("");
+                                if !main.is_empty() {
+                                    sip_main_number = Some(main.to_string());
+                                }
+                            },
+                            203 => {
+                                let add = CStr::from_bytes_until_nul(subopt_data).unwrap_or_default();
+                                let add = add.to_str().unwrap_or("");
+                                if !add.is_empty() {
+                                    sip_add_numbers.push(add.to_string());
+                                }
+                            },
+                            204 => {
+                                let mut i = 0usize;
+                                let mut labels = Vec::new();
+                                while i < subopt_data.len() {
+                                    let label_len = subopt_data[i] as usize;
+                                    if label_len == 0 {
+                                        break;
+                                    }
+                                    let start_i = i + 1;
+                                    if start_i >= subopt_data.len() {
+                                        break;
+                                    }
+                                    let end_i = start_i + label_len;
+                                    if end_i > subopt_data.len() {
+                                        break;
+                                    }
+                                    let label = &subopt_data[start_i..end_i];
+                                    labels.push(String::from_utf8_lossy(label).into_owned());
+                                    i = end_i;
+                                }
+                                let domain = labels.join(".");
+                                sip_domain_name = Some(domain);
+                            },
+                            _ => {},
+                        }
+                        pos += 2 + (subopt_len as usize);
+                    }
+                },
                 DhcpOption::Unknown(inneropt) => {
                     let code: u8 = optcode.into();
+                    log::debug!("DHCPv4 optcode: {}", code);
                     let data = inneropt.data();
                     match code {
                         120 => {
