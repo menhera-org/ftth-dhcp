@@ -330,11 +330,12 @@ impl Dhcp4Client {
                     match code {
                         120 => {
                             for i in 0usize.. {
-                                let end = i + 4;
+                                let start = i * 4;
+                                let end = start + 4;
                                 if end > data.len() {
                                     break;
                                 }
-                                let addr: [u8; 4] = data[i..end].try_into().unwrap();
+                                let addr: [u8; 4] = data[start..end].try_into().unwrap();
                                 let addr: Ipv4Addr = addr.into();
                                 sip_server_addrs.push(addr);
                             }
