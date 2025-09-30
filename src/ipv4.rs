@@ -1,5 +1,4 @@
 
-use std::ffi::CStr;
 use std::io::ErrorKind;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::time::Duration;
@@ -305,18 +304,16 @@ impl Dhcp4Client {
                                     },
                                     202 => {
                                         log::debug!("Main number data: {:?}", subopt_data);
-                                        let main = CStr::from_bytes_until_nul(subopt_data).unwrap_or_default();
-                                        let main = main.to_str().unwrap_or("");
+                                        let main = String::from_utf8(subopt_data.to_vec()).unwrap_or("".to_string());
                                         if !main.is_empty() {
-                                            sip_main_number = Some(main.to_string());
+                                            sip_main_number = Some(main);
                                         }
                                     },
                                     203 => {
                                         log::debug!("Additional number data: {:?}", subopt_data);
-                                        let add = CStr::from_bytes_until_nul(subopt_data).unwrap_or_default();
-                                        let add = add.to_str().unwrap_or("");
+                                        let add = String::from_utf8(subopt_data.to_vec()).unwrap_or("".to_string());
                                         if !add.is_empty() {
-                                            sip_add_numbers.push(add.to_string());
+                                            sip_add_numbers.push(add);
                                         }
                                     },
                                     204 => {
