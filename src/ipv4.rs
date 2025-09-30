@@ -1,10 +1,10 @@
 
 use std::ffi::CStr;
 use std::io::ErrorKind;
-use std::net::Ipv4Addr;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::time::Duration;
 
-use dhcproto::v4::{DhcpOption, Flags, HType, Message, Opcode, OptionCode, UnknownOption};
+use dhcproto::v4::{DhcpOption, Flags, HType, Message, Opcode, OptionCode, UnknownOption, CLIENT_PORT};
 use dhcproto::{Decodable, Decoder, Encodable, Encoder};
 use socket2::{Socket, Domain, Type};
 
@@ -55,6 +55,8 @@ impl Dhcp4Client {
     pub fn new(local_if_mac: [u8; 6], if_name: &str) -> std::io::Result<Self> {
         let socket = Socket::new(Domain::IPV4, Type::DGRAM, None)?;
         socket.bind_device(Some(if_name.as_bytes()))?;
+        let bind = SocketAddr::from(("0.0.0.0".parse::<IpAddr>().unwrap(), CLIENT_PORT));
+        socket.bind(&bind.into())?;
         socket.set_nonblocking(false)?;
         let socket: std::net::UdpSocket = socket.into();
         socket.set_read_timeout(Some(Duration::from_secs(15)))?;
