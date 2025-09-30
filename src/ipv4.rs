@@ -304,6 +304,7 @@ impl Dhcp4Client {
                                         // MAC address check
                                     },
                                     202 => {
+                                        log::debug!("Main number data: {:?}", subopt_data);
                                         let main = CStr::from_bytes_until_nul(subopt_data).unwrap_or_default();
                                         let main = main.to_str().unwrap_or("");
                                         if !main.is_empty() {
@@ -311,6 +312,7 @@ impl Dhcp4Client {
                                         }
                                     },
                                     203 => {
+                                        log::debug!("Additional number data: {:?}", subopt_data);
                                         let add = CStr::from_bytes_until_nul(subopt_data).unwrap_or_default();
                                         let add = add.to_str().unwrap_or("");
                                         if !add.is_empty() {
