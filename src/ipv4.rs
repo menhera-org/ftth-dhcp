@@ -58,6 +58,7 @@ impl Dhcp4Client {
         let bind = SocketAddr::from(("0.0.0.0".parse::<IpAddr>().unwrap(), CLIENT_PORT));
         socket.bind(&bind.into())?;
         socket.set_nonblocking(false)?;
+        socket.set_broadcast(true)?;
         let socket: std::net::UdpSocket = socket.into();
         socket.set_read_timeout(Some(Duration::from_secs(15)))?;
         socket.set_write_timeout(Some(Duration::from_secs(15)))?;
