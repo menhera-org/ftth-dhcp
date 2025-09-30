@@ -249,22 +249,24 @@ impl Dhcp6Client {
                     match code {
                         OptionCode::SipServerA => {
                             for i in 0usize.. {
-                                let end = i + 16;
+                                let start = i * 16;
+                                let end = start + 16;
                                 if end > data.len() {
                                     break;
                                 }
-                                let addr: [u8; 16] = data[i..end].try_into().unwrap();
+                                let addr: [u8; 16] = data[start..end].try_into().unwrap();
                                 let addr: Ipv6Addr = addr.into();
                                 sip_server_addrs.push(addr);
                             }
                         },
                         OptionCode::SntpServers => {
                             for i in 0usize.. {
-                                let end = i + 16;
+                                let start = i * 16;
+                                let end = start + 16;
                                 if end > data.len() {
                                     break;
                                 }
-                                let addr: [u8; 16] = data[i..end].try_into().unwrap();
+                                let addr: [u8; 16] = data[start..end].try_into().unwrap();
                                 let addr: Ipv6Addr = addr.into();
                                 sntp_server_addrs.push(addr);
                             }
