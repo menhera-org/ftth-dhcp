@@ -84,7 +84,10 @@ impl Dhcp6Client {
         let mut buf = Vec::with_capacity(1500);
         let mut e = Encoder::new(&mut buf);
         msg.encode(&mut e).map_err(|_| std::io::Error::new(ErrorKind::InvalidData, "DHCPv6 encoding failed"))?;
-        self.socket.send_to(&buf, ("ff02::1:2", Self::SERVER_PORT))?;
+        let sentlen = self.socket.send_to(&buf, ("ff02::1:2", Self::SERVER_PORT))?;
+        if sentlen < buf.len() {
+            log::error!("Packet not sent in whole");
+        }
         Ok(())
     }
 
