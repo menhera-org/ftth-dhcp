@@ -3,7 +3,6 @@ use std::io::ErrorKind;
 use std::net::{Ipv6Addr, SocketAddr, SocketAddrV6};
 use std::time::Duration;
 
-use dhcproto::v6::duid::Duid;
 use dhcproto::v6::{DhcpOption, DhcpOptions, IAPrefix, OptionCode, Status, VendorClass, IAPD};
 use dhcproto::{Decodable, Decoder, Encodable, Encoder};
 use socket2::{Socket, Domain, Type};
@@ -96,10 +95,10 @@ impl Dhcp6Client {
     }
 
     pub fn local_duid(&self) -> std::io::Result<Vec<u8>> {
-        let addr = self.local_ll_addr;
-        assert!(addr.is_unicast_link_local(), "Local address is not link local");
-        let duid = Duid::link_layer(dhcproto::v6::HType::Eth, addr);
-        Ok(duid.as_ref().to_vec())
+        let mac = self.local_if_mac;
+        let mut duid: Vec<u8> = vec![0x00, 0x03, 0x00, 0x01];
+        duid.extend_from_slice(&mac);
+        Ok(duid)
     }
 
     pub fn solicit_pd(&self, elapsed: Duration, ia_id: u32) -> std::io::Result<()> {
