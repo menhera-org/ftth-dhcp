@@ -159,6 +159,7 @@ impl Dhcp6Client {
             t2: 0,
             opts: pd_options,
         }));
+        log::debug!("REQUEST: {:?}", &msg);
         self.encode_send(msg)?;
         Ok(())
     }
