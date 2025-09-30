@@ -5,6 +5,8 @@ use ftth_dhcp::{ipv4, ipv6};
 use ftth_rtnl::RtnlClient;
 
 fn main() -> std::io::Result<()> {
+    env_logger::init();
+
     let args = std::env::args().collect::<Vec<_>>();
     let ifname = args.get(1);
     let ifname = if let Some(name) = ifname {
@@ -40,6 +42,7 @@ fn main() -> std::io::Result<()> {
         let v4_client = ipv4::Dhcp4Client::new(mac_addr.inner, ifname)?;
         v4_client.discover()?;
         let res = v4_client.recv(ipv4::MessageType::Offer)?;
+        println!("DISCOVER response (OFFER): {:?}", res);
         if res.client_addr.is_none() || res.server_addr.is_none() {
             Err(std::io::Error::other("No server/client address found"))?;
         }
@@ -59,6 +62,7 @@ fn main() -> std::io::Result<()> {
         let v6_client = ipv6::Dhcp6Client::new(ll_addr, mac_addr.inner, ifname)?;
         v6_client.solicit_pd(init.elapsed(), ia_id)?;
         let res = v6_client.recv(ipv6::MessageType::Advertise)?;
+        println!("SOLICIT response (ADVERTISE): {:?}", res);
         if res.pd.is_none() {
             Err(std::io::Error::other("PD prefix not received"))?;
         }
