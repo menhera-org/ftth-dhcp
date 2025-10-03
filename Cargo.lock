@@ -238,7 +238,7 @@ dependencies = [
 
 [[package]]
 name = "ftth-dhcp"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dhcproto",
  "env_logger",
@@ -251,9 +251,9 @@ dependencies = [
 
 [[package]]
 name = "ftth-rtnl"
-version = "0.1.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff2a7a23a9eb3d844fb5c5dad9edaa2b66de41e62892722d915116f3b95c2063"
+checksum = "90a05fb8a16cbedd22e4641c20027951d9461ee0d97c92846f653dc24e09f3ed"
 dependencies = [
  "ftth-common",
  "futures",
